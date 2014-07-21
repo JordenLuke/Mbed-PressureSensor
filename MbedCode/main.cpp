@@ -27,9 +27,12 @@ int main()
 {
     char cmd = 0xFF;
     int counter =-1;
-    while (1) 
+    
+	
+	
+	while (1) 
     {
-       cmd = xbee.getc();
+       
        
     }
     return 0;
@@ -58,12 +61,12 @@ int get_pressure(float *ptr)
 	int len = 0;
     if(presSensor1)
 	{
-		values[1] = pressFact * sensor1.get_pressure();
+		values[len] = pressFact * sensor1.get_pressure();
 		len ++;
 	}
     if(presSensor2)
 	{
-		values[2] = pressFact * sensor2.get_pressure();
+		values[len] = pressFact * sensor2.get_pressure();
 		len ++;
 	}
 	ptr = valaues;
@@ -164,7 +167,9 @@ void hash_options(char cmd)
 int testing()
 {
 	float pressure[2];
+	float temp[2];
 	int len;
+	char cmd = '1';
 	xbee.printf("Press any key to start test \n");
 	xbee.getc();
 	if(sensor1)
@@ -239,5 +244,13 @@ int testing()
 		return -1;
 	}
 	
-	if(
+	while(cmd != 'q' || cmd !='Q')
+	{
+		if(xbee.readable())
+		{
+			cmd = xbee.getc();
+		}
+		
+	
+	}	
 }
