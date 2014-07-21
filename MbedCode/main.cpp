@@ -11,6 +11,7 @@ Serial xbee(PA_11,PA_12);
 int serial_getline(char *ptr);
 //returns the length of the array
 int get_pressure(float *ptr);
+int get_temp(float *ptr);
 void hash_options(char cmd);
 int testing();
 bool presSensor1 = false;
@@ -58,19 +59,61 @@ int get_pressure(float *ptr)
 	int len = 0;
     if(presSensor1)
 	{
-		values[1] = pressFact * sensor1.get_pressure();
+		values[0] = pressFact * sensor1.readPressure();
 		len ++;
 	}
     if(presSensor2)
 	{
-		values[2] = pressFact * sensor2.get_pressure();
+		values[1] = pressFact * sensor2.readPressure();
 		len ++;
 	}
 	ptr = valaues;
 	
 	return len;
- } 
+ }
+ //gets tempEnd
+
+ int get_temp(float *ptr)
+ {
+		float values[2];
+		int len = 0;
+		if(presSensor1)
+		{
+			if(tempType == 0)
+			{
+				values[0] = sensor1.readTemp();
+			}
+			if(tempType ==1)
+			{
+				values[0] = sensor1.readTempF();
+			
+			}
+			if(tempType == 2)
+			{
+				values[0] = tempFact + sensor1.readTempF();
+			}
+			len ++;
+		}
+		if(presSensor2)
+		{
+			if(tempType == 0)
+			{
+				values[1] = sensor2.readTemp();
+			}
+			if(tempType ==1)
+			{
+				values[1] = sensor2.readTempF();
+			
+			}
+			if(tempType == 2)
+			{
+				values[1] = tempFact + sensor2.readTempF();
+			}
+			len ++;
+		}
+		ptr = valaues;
 }
+//menu 
 char menu()
 {
 	char cmd;
@@ -239,5 +282,16 @@ int testing()
 		return -1;
 	}
 	
-	if(
+	while(!xbee.readable())
+	{
+		len = get_pressure(&pressure);
+		if(sensor1)
+		{
+			xbee.printf("%3.3e \n", pressure[0]);
+		}
+		if(sensor2)
+		{
+			xbee.printf("%3.3e \n", pressure[1]);
+		}
+	}
 }
