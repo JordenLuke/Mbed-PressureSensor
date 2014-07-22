@@ -29,11 +29,17 @@ int main()
 {
     char cmd = 0xFF;
     int counter =-1;
+<<<<<<< HEAD
     cmd = xbee.getc();
 	while (1) 
     {
       cmd = menu();
 	  hash_options(cmd);
+=======
+    while (1) 
+    {
+       cmd = xbee.getc();
+>>>>>>> parent of 11b1e87... Added some stuff for com
        
     }
     return 0;
@@ -61,12 +67,20 @@ int get_pressure(float *ptr)
 	int len = 0;
     if(presSensor1)
 	{
+<<<<<<< HEAD
 		values[0] = pressFact * sensor1.readPressure();
+=======
+		values[1] = pressFact * sensor1.get_pressure();
+>>>>>>> parent of 11b1e87... Added some stuff for com
 		len ++;
 	}
     if(presSensor2)
 	{
+<<<<<<< HEAD
 		values[1] = pressFact * sensor2.readPressure();
+=======
+		values[2] = pressFact * sensor2.get_pressure();
+>>>>>>> parent of 11b1e87... Added some stuff for com
 		len ++;
 	}
 	ptr = valaues;
@@ -211,7 +225,10 @@ void hash_options(char cmd)
 int testing()
 {
 	float pressure[2];
+<<<<<<< HEAD
 	float temp[2};
+=======
+>>>>>>> parent of 11b1e87... Added some stuff for com
 	int len;
 	xbee.printf("Press any key to start test \n");
 	xbee.getc();
@@ -286,6 +303,7 @@ int testing()
 		xbee.printf("Error No Sensors Enabled");
 		return -1;
 	}
+<<<<<<< HEAD
 	while(cmd !='q' || cmd !='Q')
 	{
 		while(!xbee.readable())
@@ -314,4 +332,8 @@ int testing()
 	}	
 	xbee.printf("Done With Test");
 	return 1;
+=======
+	
+	if(
+>>>>>>> parent of 11b1e87... Added some stuff for com
 }
