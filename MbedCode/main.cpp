@@ -11,7 +11,9 @@ Serial xbee(PA_11,PA_12);
 int serial_getline(char *ptr);
 //returns the length of the array
 int get_pressure(float *ptr);
+int get_temp(float *ptr);
 void hash_options(char cmd);
+char menu();
 int testing();
 bool presSensor1 = false;
 bool presSensor2 = false;
@@ -27,30 +29,31 @@ int main()
 {
     char cmd = 0xFF;
     int counter =-1;
-    while (1) 
+    cmd = xbee.getc();
+	while (1) 
     {
-       cmd = xbee.getc();
+      cmd = menu();
+	  hash_options(cmd);
        
     }
     return 0;
 }
-
-int serial_getline(char *ptr)
-{
-    char input;
-    int  len = 1;
+// int serial_getline(char *ptr)
+// {
+    // char input;
+    // int  len = 1;
     
-    char array[19];
+    // char array[19];
      
-    while(input != '\n')
-    {
-       // input = xbee.getc();
-        array[len] = input;
-        len++;
-     }
-    ptr = array;
-    return len;
-}
+    // while(input != '\n')
+    // {
+       input = xbee.getc();
+        // array[len] = input;
+        // len++;
+     // }
+    // ptr = array;
+    // return len;
+// }
 //gets the pressure from the sensors
 int get_pressure(float *ptr)
 {
@@ -58,19 +61,61 @@ int get_pressure(float *ptr)
 	int len = 0;
     if(presSensor1)
 	{
-		values[1] = pressFact * sensor1.get_pressure();
+		values[0] = pressFact * sensor1.readPressure();
 		len ++;
 	}
     if(presSensor2)
 	{
-		values[2] = pressFact * sensor2.get_pressure();
+		values[1] = pressFact * sensor2.readPressure();
 		len ++;
 	}
 	ptr = valaues;
 	
 	return len;
- } 
+ }
+ //gets tempEnd
+
+ int get_temp(float *ptr)
+ {
+		float values[2];
+		int len = 0;
+		if(presSensor1)
+		{
+			if(tempType == 0)
+			{
+				values[0] = sensor1.readTemp();
+			}
+			if(tempType ==1)
+			{
+				values[0] = sensor1.readTempF();
+			
+			}
+			if(tempType == 2)
+			{
+				values[0] = tempFact + sensor1.readTempF();
+			}
+			len ++;
+		}
+		if(presSensor2)
+		{
+			if(tempType == 0)
+			{
+				values[1] = sensor2.readTemp();
+			}
+			if(tempType ==1)
+			{
+				values[1] = sensor2.readTempF();
+			
+			}
+			if(tempType == 2)
+			{
+				values[1] = tempFact + sensor2.readTempF();
+			}
+			len ++;
+		}
+		ptr = valaues;
 }
+//menu 
 char menu()
 {
 	char cmd;
@@ -158,34 +203,21 @@ void hash_options(char cmd)
 		case 's':
 			testing();
 			break;
+		default :
+			xbee.printf("Invalid option");
 	}
 }
 //used for the testing 
 int testing()
 {
 	float pressure[2];
+	float temp[2};
 	int len;
 	xbee.printf("Press any key to start test \n");
 	xbee.getc();
 	if(sensor1)
 	{
 		xbee.printf("Sensor 1");
-		switch(convertType)
-		{
-			case 0:
-				xbee.printf(" PSI,");
-				break;
-			case 1:
-				xbee.printf(" Torr,");
-				break;
-			case 2:
-				xbee.printf(" Kpa,");
-				break;
-		}
-	}
-	if(sensor2)
-	{
-		xbee.printf("Sensor 2");
 		switch(convertType)
 		{
 			case 0:
@@ -215,6 +247,22 @@ int testing()
 				break;
 		}
 	}
+	if(sensor2)
+	{
+		xbee.printf("Sensor 2");
+		switch(convertType)
+		{
+			case 0:
+				xbee.printf(" PSI,");
+				break;
+			case 1:
+				xbee.printf(" Torr,");
+				break;
+			case 2:
+				xbee.printf(" Kpa,");
+				break;
+		}
+	}
 	if(tempSensor&&sensor2)
 	{
 		xbee.printf("Temp 2")
@@ -238,6 +286,32 @@ int testing()
 		xbee.printf("Error No Sensors Enabled");
 		return -1;
 	}
-	
-	if(
+	while(cmd !='q' || cmd !='Q')
+	{
+		while(!xbee.readable())
+		{
+			len = get_pressure(&pressure);
+			get_temp(&temp);
+			if(sensor1)
+			{
+				xbee.printf("%3.3e,", pressure[0]);
+				if(tempSensor)
+				{
+					xbee.printf("3.3f,",temp[0]);
+				}
+			}
+			if(sensor2)
+			{
+				xbee.printf("%3.3e,", pressure[1]);
+				if(tempSensor)
+				{
+					xbee.printf("3.3f,",temp[0]);
+				}
+			}
+			xbee.putc('\n');
+		}
+		cmd = xbee.getc();
+	}	
+	xbee.printf("Done With Test");
+	return 1;
 }
