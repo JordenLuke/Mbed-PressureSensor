@@ -28,7 +28,7 @@ char tempEnd[10];
 int main()
 {
     char cmd = 0xFF;
-   // int counter =-1;
+  
     cmd = xbee.getc();
     while (1) 
     {
